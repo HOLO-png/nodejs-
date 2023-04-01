@@ -8,7 +8,14 @@ app.use(cors());
 
 const server = http.createServer(app);
 
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["PUT", "GET", "POST", "DELETE", "OPTIONS"],
+    allowedHeaders: ["secretHeader"],
+    credentials: true,
+  },
+});
 
 app.get("/", (req, res) => {
   res.send("Hello World 1!");
