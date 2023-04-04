@@ -10,10 +10,10 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:3000"],
+    origin: "*",
     methods: ["PUT", "GET", "POST", "DELETE", "OPTIONS"],
     allowedHeaders: ["secretHeader"],
-    credentials: true,
+    credentials: false,
   },
 });
 
@@ -33,6 +33,6 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(process.env.PORT, () => {
-  console.log("SERVER IS RUNNING");
+server.listen(3001, () => {
+  console.log("SERVER IS RUNNING", 3001);
 });
