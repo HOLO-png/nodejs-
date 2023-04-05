@@ -1,32 +1,29 @@
+const WebSocket = require("ws");
 const express = require("express");
 const app = express();
 const http = require("http");
-const { Server } = require("socket.io");
 const cors = require("cors");
 
 app.use(cors());
 
 const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
 
-const io = new Server(server, {
-  cors: {
-    origin: "*",
-    methods: ["PUT", "GET", "POST", "DELETE", "OPTIONS"],
-    allowedHeaders: ["secretHeader"],
-    credentials: false,
-  },
-});
+wss.on("connection", (socket) => {
+  console.log(`User Connected: ${socket._socket.remoteAddress}`);
 
-io.on("connection", (socket) => {
-  console.log(`User Connected: ${socket.id}`);
-
-  socket.on("join_room", (data) => {
-    socket.join(data);
-  });
-
-  socket.on("send_message", (data) => {
+  socket.on("message", (data) => {
     console.log(data);
-    socket.to(data.room).emit("receive_message", data);
+    const message = JSON.parse(data);
+    if (message.type === "join_room") {
+      socket.join(message.room);
+    } else if (message.type === "send_message") {
+      socket
+        .to(message.room)
+        .send(
+          JSON.stringify({ type: "receive_message", content: message.content })
+        );
+    }
   });
 });
 
