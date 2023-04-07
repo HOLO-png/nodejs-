@@ -8,17 +8,15 @@ app.use(cors());
 
 const server = http.createServer(app);
 
-const io = new Server(server, {
-  cors: {
-    origin: ["http://localhost:3000"],
-    methods: ["PUT", "GET", "POST", "DELETE", "OPTIONS"],
-    allowedHeaders: ["secretHeader"],
-    credentials: true,
-  },
+const io = new Server(server);
+
+app.post("/example", (req, res) => {
+  console.log(req.body);
+  res.send(req.body);
 });
 
 app.get("/", (req, res) => {
-  res.send("Hello World 2!");
+  res.send("ok connected");
 });
 
 io.on("connection", (socket) => {
@@ -34,5 +32,5 @@ io.on("connection", (socket) => {
 });
 
 server.listen(3001, () => {
-  console.log("SERVER IS RUNNING", 3001);
+  console.log("SERVER IS RUNNING");
 });
