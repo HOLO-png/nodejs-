@@ -12,7 +12,8 @@ const io = new Server(server);
 
 app.post("/example", (req, res) => {
   console.log(req.body);
-  res.send(req.body);
+
+  res.send("post ok");
 });
 
 app.get("/", (req, res) => {
