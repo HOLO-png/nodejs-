@@ -1,8 +1,8 @@
 const authCtrl = {
   register: async (req, res) => {
     try {
-      console.log(req.body);
-      res.json(req.body);
+      const { Led } = req.body;
+      res.json(Led);
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }

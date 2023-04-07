@@ -14,7 +14,6 @@ const io = new Server(server);
 app.use("/api", require("./routes/authRouter"));
 
 app.get("/", (req, res) => {
-  console.log(req.body);
   res.send("ok connected");
 });
 
