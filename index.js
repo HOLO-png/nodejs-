@@ -9,6 +9,10 @@ app.use(cors());
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
+app.use("/api/info", (req, res) => {
+  res.send("Hoang Long");
+});
+
 wss.on("connection", (socket) => {
   console.log(`User Connected: ${socket._socket.remoteAddress}`);
 
