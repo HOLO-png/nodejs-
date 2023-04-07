@@ -8,15 +8,15 @@ const EditData = (data, id, call) => {
 };
 
 const SocketServer = (socket) => {
-  socket.on("event", (user) => {
-    console.log(user);
+  //   socket.on("event", (user) => {
+  //     console.log(user);
 
-    users.push({
-      id: user._id,
-      socketId: socket.id,
-      followers: user.followers,
-    });
-  });
+  //     users.push({
+  //       id: user._id,
+  //       socketId: socket.id,
+  //       followers: user.followers,
+  //     });
+  //   });
 
   // Connect - Disconnect
   socket.on("joinUser", (user) => {
