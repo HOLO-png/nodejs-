@@ -16,8 +16,6 @@ app.use(cookieParser());
 const http = require("http").createServer(app);
 const io = require("socket.io")(http);
 
-io.emit("event", "Print event!!!");
-
 io.on("connection", (socket) => {
   SocketServer(socket);
 });
