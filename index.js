@@ -12,7 +12,7 @@ const io = new Server(server);
 
 app.post("/example", (req, res) => {
   console.log(req);
-  res.send(req.body);
+  res.send(req);
 });
 
 app.get("/", (req, res) => {
