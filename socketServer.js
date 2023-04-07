@@ -8,6 +8,7 @@ const EditData = (data, id, call) => {
 };
 
 const SocketServer = (socket) => {
+  console.log(socket.id);
   // Connect - Disconnect
   socket.on("joinUser", (user) => {
     users.push({

@@ -2,7 +2,7 @@ const Drives = require("../models/driveModel");
 const _id = "643051e1e4e0a63785a4f537";
 
 const driveCtrl = {
-  getLegStatus: async (req, res) => {
+  getLegStatus: async (_, res) => {
     try {
       const drive = await Drives.findOne({ _id });
       res.status(200).json(drive.Led.Status);
