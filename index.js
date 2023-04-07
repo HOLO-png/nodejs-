@@ -11,12 +11,12 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 app.post("/example", (req, res) => {
-  console.log(req.body);
-
-  res.send("post ok");
+  console.log(req);
+  res.send(req.body);
 });
 
 app.get("/", (req, res) => {
+  console.log(req.body);
   res.send("ok connected");
 });
 
