@@ -9,14 +9,14 @@ const EditData = (data, id, call) => {
 
 const SocketServer = (socket) => {
   console.log(socket);
-  //   socket.on("event", (user) => {
-  //     console.log(user);
-  //     users.push({
-  //       id: user._id,
-  //       socketId: socket.id,
-  //       followers: user.followers,
-  //     });
-  //   });
+  socket.on("event", (user) => {
+    console.log(user);
+    users.push({
+      id: user._id,
+      socketId: socket.id,
+      followers: user.followers,
+    });
+  });
   // Connect - Disconnect
   //   socket.on("joinUser", (user) => {
   //     users.push({
