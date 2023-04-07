@@ -11,8 +11,8 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 app.post("/example", (req, res) => {
-  console.log(req);
-  res.send(req);
+  console.log(req.body);
+  res.send(req.body);
 });
 
 app.get("/", (req, res) => {
