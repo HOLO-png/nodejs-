@@ -9,7 +9,7 @@ app.use(cors());
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-app.use("/api/info", (req, res) => {
+app.get("/api/info", (req, res) => {
   res.send("Hoang Long");
 });
 
