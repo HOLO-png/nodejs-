@@ -1,8 +1,11 @@
 const express = require("express");
-const app = express();
 const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
+
+const app = express();
+app.use(express.json());
+app.use(cors());
 
 app.use(cors());
 
@@ -10,10 +13,7 @@ const server = http.createServer(app);
 
 const io = new Server(server);
 
-app.post("/example", (req, res) => {
-  console.log(req.body);
-  res.send(req.body);
-});
+app.use("/api", require("./routes/authRouter"));
 
 app.get("/", (req, res) => {
   console.log(req.body);
