@@ -2,7 +2,26 @@ const mongoose = require("mongoose");
 
 const driveSchema = new mongoose.Schema(
   {
-    status: String,
+    AntiFire: {
+      PPM: Number,
+      Status: String,
+    },
+    AntiTheft: {
+      Status: String,
+      Times: Number,
+    },
+    Humidity: {
+      Data: Number,
+    },
+    Led: {
+      Status: Number,
+    },
+    RainAlarm: {
+      Status: String,
+    },
+    Temperature: {
+      Data: Number,
+    },
   },
   {
     timestamps: true,

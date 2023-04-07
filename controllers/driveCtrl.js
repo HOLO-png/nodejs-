@@ -1,7 +1,7 @@
 const Drives = require("../models/driveModel");
 
 const driveCtrl = {
-  getLeg: async (req, res) => {
+  getLegStatus: async (req, res) => {
     try {
       const drives = await Drives.find();
       res.json(drives[0].status);
@@ -9,10 +9,12 @@ const driveCtrl = {
       return res.status(500).json({ msg: err.message });
     }
   },
-  createDrive: async (req, res) => {
+  updateDriveStatus: async (req, res) => {
+    const _id = "643051e1e4e0a63785a4f537";
     try {
-      const drives = await Drives.insert({ req });
-      res.json(drives[0].status);
+      console.log(req.body);
+      const drives = await Drives.updateOne({ _id }, req.body);
+      res.json("updated success");
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
