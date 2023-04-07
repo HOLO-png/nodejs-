@@ -9,6 +9,7 @@ const EditData = (data, id, call) => {
 
 const SocketServer = (socket) => {
   socket.on("event", (user) => {
+    console.log(user);
     users.push({
       user,
     });
