@@ -24,6 +24,7 @@ io.on("connection", (socket) => {
 ExpressPeerServer(http, { path: "/" });
 
 // Routes
+app.use("/api", require("./routes/tokenNotifyRouter"));
 app.use("/api", require("./routes/authRouter"));
 app.use("/api", require("./routes/userRouter"));
 app.use("/api", require("./routes/notifyRouter"));
