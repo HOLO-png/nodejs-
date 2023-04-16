@@ -4,10 +4,15 @@ const tokenNotifyCtrl = {
   createTokenNotify: async (req, res) => {
     try {
       const { userId, token } = req.body;
+      const tokenExisted = await TokenNotify.findOne({ token: token });
+      if (tokenExisted) {
+        return res.status(500).json({ msg: "Token existed." });
+      }
       const newToken = new TokenNotify({
         userId,
         token,
       });
+
       await newToken.save();
       return res.status(200).json({ token, message: "Add token successed" });
     } catch (err) {
