@@ -21,7 +21,8 @@
     "mongoose": "^5.11.13",
     "nodemailer": "^6.9.1",
     "peer": "^0.6.1",
-    "socket.io": "^3.1.2"
+    "socket.io": "^3.1.2",
+    "fcm-node": "^1.6.1"
   },
   "devDependencies": {
     "nodemon": "^1.14.11"

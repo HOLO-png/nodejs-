@@ -20,15 +20,28 @@ io.on("connection", (socket) => {
   SocketServer(socket);
 });
 
+const serviceFCM = require("./serviceFCM");
+
 // Create peer server
 ExpressPeerServer(http, { path: "/" });
 
 // Routes
 app.use("/api", require("./routes/tokenNotifyRouter"));
 app.use("/api", require("./routes/authRouter"));
-app.use("/api", require("./routes/userRouter"));
+// app.use("/api", require("./routes/userRouter"));
 app.use("/api", require("./routes/notifyRouter"));
-app.use("/api", require("./routes/driveRouter"));
+// app.use("/api", require("./routes/driveRouter"));
+app.use("/apiNPM", (req, res) => {
+  const token =
+    "dUnTEoBPReyQgX_D4R7PLp:APA91bF19Pa7P6Daj2jrahaCEzpWGKu-aPWgLZmAvZFcEgqPWiQIHunE_MYUx2pzU7-o0hqRZ1W0zeK76JJJMM-83mneWy6mgn8wgEP4_XP5gRBKYnxiHIHB3qK-0G9OxDFBqzc-wMzW";
+  console.log(token);
+  serviceFCM.sendMessage(
+    token,
+    "Cảnh Báo",
+    "Phát hiện xâm nhập lạ vào nhà bạn"
+  );
+  res.send("Hello World!!");
+});
 
 const URI = process.env.MONGODB_URL;
 mongoose.connect(
