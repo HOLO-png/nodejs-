@@ -1,19 +1,29 @@
 let users = [];
 
-const EditData = (data, id, call) => {
-  const newData = data.map((item) =>
-    item.id === id ? { ...item, call } : item
-  );
-  return newData;
-};
+// const EditData = (data, id, call) => {
+//   const newData = data.map((item) =>
+//     item.id === id ? { ...item, call } : item
+//   );
+//   return newData;
+// };
 
 const SocketServer = (socket) => {
-  socket.on("event", (clientId) => {
+  socket.on("joinUser", (user) => {
     users.push({
-      clientId,
+      id: user._id,
+      socketId: socket.id,
     });
-    console.log(clientId);
-    socket.to(`${clientId}`).emit("eventToClient", clientId);
+  });
+
+  socket.on("disconnect", () => {
+    users.find((user) => user.socketId === socket.id);
+    users = users.filter((user) => user.socketId !== socket.id);
+  });
+
+  socket.on("turnLedAction", (newLedStatus) => {
+    users.forEach((user) => {
+      socket.to(`${user.socketId}`).emit("turnLedActionToClient", newLedStatus);
+    });
   });
 };
 

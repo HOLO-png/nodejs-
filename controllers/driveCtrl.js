@@ -12,7 +12,8 @@ const driveCtrl = {
   },
   updateDriveStatus: async (req, res) => {
     try {
-      await Drives.updateOne({ _id }, req.body);
+      console.log(req.body);
+      await Drives.updateOne({ _id });
       res.status(200).json(req.body);
     } catch (err) {
       return res.status(500).json({ msg: err.message });

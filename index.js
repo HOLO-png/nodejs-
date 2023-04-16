@@ -17,16 +17,7 @@ const http = require("http").createServer(app);
 const io = require("socket.io")(http);
 
 io.on("connection", (socket) => {
-  console.log(`${socket.id}`);
-
-  socket.on("join_room", (data) => {
-    console.log(data);
-    socket.join(data);
-  });
-
-  socket.on("send_message", (data) => {
-    socket.to(data.room).emit("receive_message", data);
-  });
+  SocketServer(socket);
 });
 
 // Create peer server
@@ -35,10 +26,7 @@ ExpressPeerServer(http, { path: "/" });
 // Routes
 app.use("/api", require("./routes/authRouter"));
 app.use("/api", require("./routes/userRouter"));
-app.use("/api", require("./routes/postRouter"));
-app.use("/api", require("./routes/commentRouter"));
 app.use("/api", require("./routes/notifyRouter"));
-app.use("/api", require("./routes/messageRouter"));
 app.use("/api", require("./routes/driveRouter"));
 
 const URI = process.env.MONGODB_URL;
