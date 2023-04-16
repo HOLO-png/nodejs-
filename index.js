@@ -17,7 +17,16 @@ const http = require("http").createServer(app);
 const io = require("socket.io")(http);
 
 io.on("connection", (socket) => {
-  SocketServer(socket);
+  console.log(`${socket.id}`);
+
+  socket.on("join_room", (data) => {
+    console.log(data);
+    socket.join(data);
+  });
+
+  socket.on("send_message", (data) => {
+    socket.to(data.room).emit("receive_message", data);
+  });
 });
 
 // Create peer server
