@@ -9,6 +9,8 @@ let users = [];
 
 const SocketServer = (socket) => {
   socket.on("joinUser", (user) => {
+    console.log("user", user);
+    users.filter((e, i) => e.id != user._id);
     users.push({
       id: user._id,
       socketId: socket.id,

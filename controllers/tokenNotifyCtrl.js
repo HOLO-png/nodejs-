@@ -1,6 +1,14 @@
 const TokenNotify = require("../models/tokenNotifyModal");
 
 const tokenNotifyCtrl = {
+  getToken: async (req, res) => {
+    try {
+      const tokens = TokenNotify.find();
+      return res.status(200).json({ tokens });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
   createTokenNotify: async (req, res) => {
     try {
       const { userId, token } = req.body;
@@ -12,7 +20,6 @@ const tokenNotifyCtrl = {
         userId,
         token,
       });
-
       await newToken.save();
       return res.status(200).json({ token, message: "Add token successed" });
     } catch (err) {
