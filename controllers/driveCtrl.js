@@ -15,8 +15,19 @@ const driveCtrl = {
       return res.status(500).json({ msg: err.message });
     }
   },
-  updateDriveStatus: async (req, res) => {
+  updateDrive: async (req, res) => {
     try {
+      const { Humidity, Temperature, AntiFire, AntiTheft, RainAlarm, Led } =
+        req.body;
+
+      //  ws light
+      io.emit("testLight", Led.Status);
+
+      // ws temp and humi
+      const d = { temp: Humidity.Data, humi: Temperature.Data };
+      io.emit("testTemHumi", d);
+
+      console.log(req.body);
       await Drives.updateOne({ _id });
       res.status(200).json(req.body);
     } catch (err) {
