@@ -18,7 +18,7 @@ const driveService = {
         },
       };
       const drive = await Drives.updateOne({ _id }, { $set: objectLightLed });
-      return drive.Led.Status;
+      return status;
     } catch (err) {
       return null;
     }

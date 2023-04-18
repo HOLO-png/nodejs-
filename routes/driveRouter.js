@@ -1,8 +1,12 @@
 const router = require("express").Router();
-const authCtrl = require("../controllers/driveCtrl");
+const driveCtrl = require("../controllers/driveCtrl");
 
-router.get("/drive", authCtrl.getDrive);
-router.post("/drive", authCtrl.updateDriveStatus);
-router.post("/drive/updateStatus", authCtrl.updateStatus);
+router.get("/drive", driveCtrl.getDrive);
+
+router.post("/drive", driveCtrl.updateDriveStatus);
+
+router.post("/drive/updateLightStatus", driveCtrl.updateLightStatus);
+
+router.post("/drive/updateDataTempHumi", driveCtrl.updateDataTempHumi);
 
 module.exports = router;

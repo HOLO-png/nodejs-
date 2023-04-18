@@ -1,6 +1,7 @@
 const httpServer = require("http").createServer();
 const io = require("socket.io")(httpServer);
 const chatbotService = require("./services/chatbot.service");
+const driveService = require("./services/drive.service");
 const msgErrorNotFound = [
   "Xin lỗi, tôi không hiểu bạn nói gì!",
   "Bạn có thể nhắc lại điều đó cho tôi được không!",
@@ -27,15 +28,18 @@ io.on("connection", (socket) => {
     });
   });
 
-  // socket.on("testTemHumi", (data) => {
-  //   console.log("testTemHumi ", data);
-  //   // socket.to(data.room).emit("receive_message", data);
-  // });
+  socket.on("testTemHumi", (data) => {
+    console.log("testTemHumi ", data);
+    const d = { temp: 50, humi: 89.1 };
+    socket.emit("testTemHumi", d);
+  });
 
-  // socket.on("testLight", (data) => {
-  //   console.log("testLight ", data);
-  //   // socket.to(data.room).emit("receive_message", data);
-  // });
+  socket.on("testLight", async (data) => {
+    console.log("testLight ", data);
+    await driveService.updateStatusLight(data);
+
+    socket.emit("testLight", data);
+  });
 
   socket.on("sendChat", async (data) => {
     console.log("data", data);
