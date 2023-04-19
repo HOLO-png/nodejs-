@@ -1,4 +1,5 @@
 const Drives = require("../models/driveModel");
+const TokenNotify = require("../models/tokenNotifyModal");
 const _id = "643051e1e4e0a63785a4f537";
 
 const io = require("../module_sokect");
@@ -17,18 +18,65 @@ const driveCtrl = {
   },
   updateDrive: async (req, res) => {
     try {
+      const tokens = await TokenNotify.find();
+      console.log("tokens: ", tokens);
+      console.log(req.body);
+
       const { Humidity, Temperature, AntiFire, AntiTheft, RainAlarm, Led } =
         req.body;
 
       //  ws light
-      io.emit("testLight", Led.Status);
+      wsTurnOffOnLightLed(Led.Status);
+
+      const arrayError = {
+        temp: false,
+        antiFire: false,
+        antiTheft: false,
+        rainAlarm: false,
+      };
+
+      // check Temperature >= 50 warning send FCM
+      if (Temperature.Data >= 50) {
+        arrayError.temp = true;
+      }
+
+      // check device warning send FCM
+      if (AntiFire.Status != "no") {
+        arrayError.antiFire = true;
+      }
+
+      // check device warning send FCM
+      if (AntiTheft.Status != "no") {
+        arrayError.antiTheft = true;
+      }
+
+      //check device rain warning send FCM
+      if (RainAlarm.Status != "no") {
+        arrayError.rainAlarm = true;
+      }
+
+      //send message
+      tokens.forEach((element) => {
+        if (arrayError.temp) {
+          sendMessageWarningTemp(element.token);
+        }
+        if (arrayError.antiFire) {
+          sendMessageWarningAntiFire(element.token);
+        }
+        if (arrayError.antiTheft) {
+          sendMessageWarningAntiTheft(element.token);
+        }
+        if (arrayError.rainAlarm) {
+          sendMessageWarningRainAlarm(element.token);
+        }
+      });
 
       // ws temp and humi
-      const d = { temp: Humidity.Data, humi: Temperature.Data };
-      io.emit("testTemHumi", d);
+      const data = { temp: Humidity.Data, humi: Temperature.Data };
+      wsTurnOffOnLightLed(data);
 
-      console.log(req.body);
-      await Drives.updateOne({ _id });
+      //update dive
+      await Drives.updateOne({ _id }, { $set: req.body });
       res.status(200).json(req.body);
     } catch (err) {
       return res.status(500).json({ msg: err.message });
@@ -39,7 +87,7 @@ const driveCtrl = {
       const { Led } = req.body;
       console.log("new status", req.body);
       const drive = await Drives.updateOne({ _id }, { $set: req.body });
-      io.emit("testLight", Led.Status);
+      wsTurnOffOnLightLed(Led.Status);
       return res.status(200).json(Led.Status);
     } catch (err) {
       return res.status(500).json({ msg: err.message });
@@ -47,19 +95,55 @@ const driveCtrl = {
   },
   updateDataTempHumi: async (req, res) => {
     try {
+      const tokens = await TokenNotify.find();
+      console.log("tokens: ", tokens);
       const { Humidity, Temperature } = req.body;
       console.log("new status", Temperature.Data);
       if (Temperature.Data >= 50) {
-        serviceFCM.sendMessage(token, "Cảnh Báo", "Nhiệt Độ quá cao!");
+        tokens.forEach((element) => {
+          sendMessageWarningTemp(element.token);
+        });
       }
       const drive = await Drives.updateOne({ _id }, { $set: req.body });
-      const d = { temp: Humidity.Data, humi: Temperature.Data };
-      io.emit("testTemHumi", d);
+      const data = { temp: Humidity.Data, humi: Temperature.Data };
+      wsTurnOffOnLightLed(data);
       return res.status(200).json(req.body);
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
   },
 };
+
+//Turn off/on light
+function wsTurnOffOnLightLed(data) {
+  io.emit("testLight", data);
+}
+
+//ws send realtime Temp and Humi
+function wsTurnOffOnLightLed(data) {
+  io.emit("testTemHumi", data);
+}
+
+// send FCM
+function sendMessageWarningTemp(token) {
+  sendMessage(token, "Cảnh Báo Nhiệt độ", "Nhiệt Độ quá cao!");
+}
+
+function sendMessageWarningAntiFire(token) {
+  sendMessage(token, "Cảnh Báo AntiFire", "Waring AntiFire !!!");
+}
+
+function sendMessageWarningAntiTheft(token) {
+  sendMessage(token, "Cảnh Báo AntiTheft", "Waring AntiTheft !!!");
+}
+
+function sendMessageWarningRainAlarm(token) {
+  sendMessage(token, "Cảnh Báo RainAlarm", "Waring RainAlarm !!!");
+}
+
+function sendMessage(token, message, body) {
+  serviceFCM.sendMessage(token, message, body);
+  io.emit("serviceFCM", "serviceFCM");
+}
 
 module.exports = driveCtrl;
