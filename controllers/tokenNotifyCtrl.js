@@ -23,6 +23,7 @@ const tokenNotifyCtrl = {
       const { userId, token } = req.body;
       const tokenExisted = await TokenNotify.findOne({
         token: token,
+        userId: userId,
       });
       if (tokenExisted) {
         return res.status(500).json({ msg: "Token existed." });
