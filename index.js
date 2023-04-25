@@ -3,7 +3,6 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const SocketServer = require("./socketServer");
 const { ExpressPeerServer } = require("peer");
 const path = require("path");
 const io = require("./module_sokect.js");
