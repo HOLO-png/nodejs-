@@ -27,7 +27,6 @@ mongoose.connect(
   }
 );
 
-
 // Socket
 const http = require("http").createServer(app);
 // const io = require("socket.io")(http);
