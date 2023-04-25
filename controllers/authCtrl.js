@@ -6,9 +6,21 @@ const sendEMail = require("../lib/sendMail.js");
 const authCtrl = {
   register: async (req, res) => {
     try {
-      const { email, password, username, fullname } = req.body;
+      const { email, password, fullname, mobile, address, phoneNumber, cmnd } = req.body;
 
       const user_email = await Users.findOne({ email });
+      const user_phoneNumber = await Users.findOne({ phoneNumber });
+      const user_cmnd = await Users.findOne({ identify: cmnd });
+      if (user_cmnd)
+        return res
+          .status(400)
+          .json({ msg: "This cmnd & password already exists." });
+
+      if (user_phoneNumber)
+        return res
+          .status(400)
+          .json({ msg: "This phoneNumber & password already exists." });
+
       if (user_email)
         return res
           .status(400)
@@ -23,8 +35,11 @@ const authCtrl = {
 
       const newUser = new Users({
         email,
-        username,
+        identify: cmnd,
         fullname,
+        mobile,
+        address,
+        phoneNumber,
         password: passwordHash,
       });
 
@@ -54,10 +69,13 @@ const authCtrl = {
   },
   login: async (req, res) => {
     try {
-      const { email, password } = req.body;
-      const user = await Users.findOne({ email });
+      const { phoneNumber, password } = req.body;
+      console.log(req.body);
+      const user = await Users.findOne({ phoneNumber });
       if (!user)
-        return res.status(400).json({ msg: "This email does not exist." });
+        return res
+          .status(400)
+          .json({ msg: "This phone number does not exist." });
 
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch)
@@ -99,7 +117,7 @@ const authCtrl = {
             .select("-password")
             .populate(
               "followers following",
-              "avatar username fullname followers following"
+              "avatar identify fullname followers following"
             );
 
           if (!user)
@@ -126,9 +144,9 @@ const authCtrl = {
       }
       const access_token = createAccessToken({ id: user._id });
 
-      const url = `${process.env.CLIENT_URL}/reset-password/${access_token}`;
+      const url = `${process.env.CLIENT_URL}/auth/reset-password/${access_token}`;
 
-      sendEMail(email, url, user.username, "Please click to reset password");
+      sendEMail(email, url, user.identify, "Please click to reset password");
 
       res.status(200).json({
         msg: "re-send the password, please check your email!",
@@ -161,14 +179,22 @@ const authCtrl = {
       return res.status(500).json({ msg: error.message });
     }
   },
+  getUsers: async (req, res) => {
+    try {
+      const users = await Users.find();
+      res.status(200).json(users);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ msg: error.message });
+    }
+  },
 };
 
 const createAccessToken = (payload) => {
   const token = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
     expiresIn: "1d",
   });
-  const tokenWithoutDots = token.replace(/\./g, "-");
-  return tokenWithoutDots;
+  return token;
 };
 
 const createRefreshToken = (payload) => {

@@ -2,13 +2,11 @@ const mongoose = require("mongoose");
 
 const notifySchema = new mongoose.Schema(
   {
-    id: mongoose.Types.ObjectId,
-    user: { type: mongoose.Types.ObjectId, ref: "user" },
-    recipients: [mongoose.Types.ObjectId],
-    url: String,
-    text: String,
-    content: String,
-    isRead: { type: Boolean, default: false },
+    title: String,
+    body: String,
+    userId: String,
+    image: String,
+    status: { type: String, enum: ["0", "1", "2", "3", "4"] },
   },
   {
     timestamps: true,
