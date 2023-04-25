@@ -34,16 +34,14 @@ io.on("connection", (socket) => {
   });
 
   socket.on("testTemHumi", (data) => {
-    console.log("testTemHumi ", data);
     const d = { temp: 50, humi: 89.1 };
     socket.emit("testTemHumi", d);
   });
 
   // Notification
   socket.on("createNotify", async (data) => {
-
     const client = users.find((user) => data.userId === user.id);
-    await driveService.updateStatusLight(data);
+    const notify = await notifyService.createNotify(data);
     client && socket.to(`${client.socketId}`).emit("createNotifyToClient", data);
   });
 
