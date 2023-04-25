@@ -2,6 +2,8 @@ const httpServer = require("http").createServer();
 const io = require("socket.io")(httpServer);
 const chatbotService = require("./services/chatbot.service");
 const driveService = require("./services/drive.service");
+const notifyService = require("./services/notify.servive");
+
 const msgErrorNotFound = [
   "Xin lỗi, tôi không hiểu bạn nói gì!",
   "Bạn có thể nhắc lại điều đó cho tôi được không!",
@@ -29,7 +31,6 @@ io.on("connection", (socket) => {
       socketId: socket.id,
     });
     users = newUser;
-    console.log("list users: ", users);
   });
 
   socket.on("testTemHumi", (data) => {
@@ -38,10 +39,18 @@ io.on("connection", (socket) => {
     socket.emit("testTemHumi", d);
   });
 
-  socket.on("testLight", async (data) => {
-    console.log("testLight ", data);
+  // Notification
+  socket.on("createNotify", async (data) => {
+
+    const client = users.find((user) => data.userId === user.id);
     await driveService.updateStatusLight(data);
-    socket.emit("testLight", data);
+    client && socket.to(`${client.socketId}`).emit("createNotifyToClient", data);
+  });
+
+  socket.on("testLight", async (data) => {
+    const client = users.find((user) => data.userId === user.id);
+    await driveService.updateStatusLight(data);
+    client && socket.to(`${client.socketId}`).emit("testLight", data);
   });
 
   socket.on("sendChat", async (data) => {
@@ -54,10 +63,8 @@ io.on("connection", (socket) => {
       console.log("msg", msgAnswer);
       const findUser = users.find((e, i) => (e.id = data.userId));
       console.log("findUser", findUser);
-
       if (!msgAnswer) {
         errorNotFoundCount++;
-
         if (errorNotFoundCount == 3) {
           msgAnswer = errorNotFoundMessage;
           errorNotFoundCount = 0;
@@ -94,10 +101,9 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("turnLedAction", (newLedStatus) => {
-    users.forEach((user) => {
-      socket.to(`${user.socketId}`).emit("turnLedActionToClient", newLedStatus);
-    });
+  socket.on("removeNotify", (msg) => {
+    const client = users.find((user) => msg.userId === user.id);
+    client && socket.to(`${client.socketId}`).emit("removeNotifyToClient", msg);
   });
 
   socket.on("disconnect", () => {

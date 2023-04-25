@@ -12,7 +12,7 @@ const SocketServer = (socket) => {
     console.log("user", user);
     users.filter((e, i) => e.id != user._id);
     users.push({
-      id: user._id,
+      id: user?.user?._id,
       socketId: socket.id,
     });
   });
@@ -26,6 +26,17 @@ const SocketServer = (socket) => {
     users.forEach((user) => {
       socket.to(`${user.socketId}`).emit("turnLedActionToClient", newLedStatus);
     });
+  });
+
+  // Notification
+  socket.on("createNotify", (msg) => {
+    const client = users.find((user) => msg.userId === user.id);
+    client && socket.to(`${client.socketId}`).emit("createNotifyToClient", msg);
+  });
+
+  socket.on("removeNotify", (msg) => {
+    const client = users.find((user) => msg.userId === user.id);
+    client && socket.to(`${client.socketId}`).emit("removeNotifyToClient", msg);
   });
 };
 
