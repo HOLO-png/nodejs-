@@ -3,7 +3,6 @@ const io = require("socket.io")(httpServer);
 const processInput = require("./lib/chatbox");
 const driveService = require("./services/drive.service");
 const notifyService = require("./services/notify.servive");
-const natural = require('natural');
 
 var users = [];
 
@@ -46,7 +45,6 @@ io.on("connection", (socket) => {
       const message = data;
       const findUser = users.find((e, i) => (e.id = data.userId));
       var msgAnswer = await processInput(message.message, { client: findUser, socket });
-      console.log(msgAnswer);
 
       const jsonObject = {
         user: "Bot",
@@ -55,7 +53,6 @@ io.on("connection", (socket) => {
         bot: true,
         createdAt: new Date()
       };
-
       io.to(`${findUser.socketId}`).emit("sendChat", jsonObject);
     } catch (error) {
       console.log("error", error);
