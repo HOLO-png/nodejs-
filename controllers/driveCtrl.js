@@ -8,6 +8,14 @@ const driveCtrl = {
   getDrive: async (_, res) => {
     try {
       const drive = await Drives.findOne({ _id });
+      res.status(200).json(drive.Led.Status);
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  getDrives: async (_, res) => {
+    try {
+      const drive = await Drives.findOne({ _id });
       res.status(200).json(drive);
     } catch (err) {
       return res.status(500).json({ msg: err.message });
@@ -26,14 +34,27 @@ const driveCtrl = {
   updateDrive: async (req, res) => {
     try {
       const tokens = await TokenNotify.find();
+      const drive = await Drives.findOne({ _id });
       console.log(req.body);
-      const { Humidity, Temperature, AntiFire, AntiTheft, RainAlarm, Led } =
+      const { Humidity, Temperature, AntiFire, AntiTheft, RainAlarm } =
         req.body;
+
         console.log("Temperature.Data: ", Temperature.Data);
         console.log("Temperature  ", Temperature.Data >= 50);
+        console.log("AntiTheft.Status: ", AntiTheft);
+        console.log("AntiFire.Status: ", AntiFire);
+
+        // const obj = {
+        //   Humidity: { Data: 71.40000153 },
+        //   Temperature: { Data: 31.39999962 },
+        //   AntiTheft: { Times: '1' },
+        //    AntiFire: { PPM: '100' },
+        //  RainAlarm: { Status: '0' }
+        //   }
 
       //  ws light
-      wsTurnOffOnLightLed(Led.Status);
+      // wsTurnOffOnLightLed(Led.Status);
+
       const arrayError = {
         temp: false,
         antiFire: false,
@@ -51,8 +72,9 @@ const driveCtrl = {
         };
         notifyService.createNotify(object);
       }
+
       // check device warning send FCM
-      if (AntiFire.Status != "no" || AntiFire.PPM > 100) {
+      if (AntiFire.PPM > 100) {
         arrayError.antiFire = true;
         const object = {
           title: "Cảnh Báo AntiFire",
@@ -61,8 +83,9 @@ const driveCtrl = {
         };
         notifyService.createNotify(object);
       }
+
       // check device warning send FCM
-      if (AntiTheft.Status != "no") {
+      if (AntiTheft.Times != drive.AntiTheft.Times) {
         arrayError.antiTheft = true;
         const object = {
           title: "Cảnh Báo AntiTheft",
@@ -110,10 +133,13 @@ const driveCtrl = {
 
       // ws temp and humi
       const data = { temp: Temperature.Data, humi: Humidity.Data };
+      console.log("data: ",data);
       wsDataHumiTemp(data);
 
       //update dive
-      await Drives.updateOne({ _id }, { $set: req.body });
+      await Drives.updateOne({ _id }, { $set:  req.body });
+
+
       res.status(200).json(req.body);
     } catch (err) {
       return res.status(500).json({ msg: err.message });
