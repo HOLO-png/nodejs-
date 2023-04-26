@@ -35,9 +35,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("testLight", async (data) => {
-    const client = users.find((user) => data.userId === user.id);
     await driveService.updateStatusLight(data);
-    client && socket.to(`${client.socketId}`).emit("testLight", data);
+    socket.emit("testLight", data);
   });
 
   socket.on("sendChat", async (data) => {
