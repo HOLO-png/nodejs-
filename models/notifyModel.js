@@ -4,7 +4,6 @@ const notifySchema = new mongoose.Schema(
   {
     title: String,
     body: String,
-    userId: String,
     image: String,
     status: { type: String, enum: ["0", "1", "2", "3", "4"] },
   },
