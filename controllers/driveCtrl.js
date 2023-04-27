@@ -1,11 +1,19 @@
 const Drives = require("../models/driveModel");
 const TokenNotify = require("../models/tokenNotifyModal");
-const _id = "643051e1e4e0a63785a4f537";
+const _id = "644401c5e40e6c272070c6bf";
 const notifyService = require("../services/notify.servive");
 const io = require("../module_sokect");
 const serviceFCM = require("../serviceFCM");
 const driveCtrl = {
   getDrive: async (_, res) => {
+    try {
+      const drive = await Drives.findOne({ _id });
+      res.status(200).json(drive.Led.Status);
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  getDrives: async (_, res) => {
     try {
       const drive = await Drives.findOne({ _id });
       res.status(200).json(drive);
@@ -14,17 +22,39 @@ const driveCtrl = {
       return res.status(500).json({ msg: err.message });
     }
   },
+  createDrive: async (req, res) => {
+    try {
+      const drive =  Drives(req.body);
+      console.log(drive);
+      const driveSave = drive.save();
+      res.status(200).json(driveSave);
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
   updateDrive: async (req, res) => {
     try {
       const tokens = await TokenNotify.find();
+      const drive = await Drives.findOne({ _id });
       console.log(req.body);
-      const { Humidity, Temperature, AntiFire, AntiTheft, RainAlarm, Led } =
+      const { Humidity, Temperature, AntiFire, AntiTheft, RainAlarm } =
         req.body;
-      console.log("Temperature.Data: ", Temperature.Data);
-      console.log("Temperature  ", Temperature.Data >= 50);
+
+        console.log("Temperature.Data: ", Temperature.Data);
+        console.log("Temperature  ", Temperature.Data >= 50);
+        console.log("AntiTheft.Status: ", AntiTheft);
+        console.log("AntiFire.Status: ", AntiFire);
+
+        // const obj = {
+        //   Humidity: { Data: 71.40000153 },
+        //   Temperature: { Data: 31.39999962 },
+        //   AntiTheft: { Times: '1' },
+        //    AntiFire: { PPM: '100' },
+        //  RainAlarm: { Status: '0' }
+        //   }
 
       //  ws light
-      wsTurnOffOnLightLed(Led.Status);
+      // wsTurnOffOnLightLed(Led.Status);
 
       const arrayError = {
         temp: false,
@@ -43,8 +73,9 @@ const driveCtrl = {
         };
         notifyService.createNotify(object);
       }
+
       // check device warning send FCM
-      if (AntiFire.Status != "no" || AntiFire.PPM > 100) {
+      if (AntiFire.PPM > 100) {
         arrayError.antiFire = true;
         const object = {
           title: "Cảnh Báo AntiFire",
@@ -53,8 +84,9 @@ const driveCtrl = {
         };
         notifyService.createNotify(object);
       }
+
       // check device warning send FCM
-      if (AntiTheft.Status != "no") {
+      if (AntiTheft.Times != drive.AntiTheft.Times) {
         arrayError.antiTheft = true;
         const object = {
           title: "Cảnh Báo AntiTheft",
@@ -102,10 +134,13 @@ const driveCtrl = {
 
       // ws temp and humi
       const data = { temp: Temperature.Data, humi: Humidity.Data };
+      console.log("data: ",data);
       wsDataHumiTemp(data);
 
       //update dive
-      await Drives.updateOne({ _id }, { $set: req.body });
+      await Drives.updateOne({ _id }, { $set:  req.body });
+
+
       res.status(200).json(req.body);
     } catch (err) {
       return res.status(500).json({ msg: err.message });

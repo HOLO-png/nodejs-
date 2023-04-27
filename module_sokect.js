@@ -7,12 +7,14 @@ const notifyService = require("./services/notify.servive");
 var users = [];
 
 io.on("connection", (socket) => {
-
   console.log(`User Connected: ${socket.id}`);
-
   socket.on("joinUser", (user) => {
     console.log("user", user._id);
+    let socketIdLogin = '';
     const newUser = users.filter((e, i) => {
+      if(e.id != user._id){
+        socketIdLogin = e.socketId;
+      }
       return e.id != user._id;
     });
     newUser.push({
@@ -20,6 +22,14 @@ io.on("connection", (socket) => {
       socketId: socket.id,
     });
     users = newUser;
+    if(user.mobile){
+      console.log('is mobile');
+      if(socketIdLogin){
+        socket.to(`${socketIdLogin}`).emit("ws-login", "another login");
+      }
+    }else{
+      console.log('is not mobile');
+    }
   });
 
   socket.on("testTemHumi", (data) => {
@@ -57,7 +67,7 @@ io.on("connection", (socket) => {
       console.log("error", error);
       const jsonObject = {
         user: "Bot",
-        userId: "1",
+        userId: data.userId,
         message: errorMsg,
       };
       io.to(`${findUser.socketId}`).emit("sendChat", jsonObject);
@@ -74,7 +84,6 @@ io.on("connection", (socket) => {
     for (var i = 0; i < users.length; i++) {
       if (users[i].socketId == socket.id) {
         users.splice(i, 1);
-        break;
       }
     }
     console.log(users);
